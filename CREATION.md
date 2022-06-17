@@ -5,6 +5,7 @@
 - [ ] Run command yarn add eslint --dev
 - [ ] Run command yarn create @eslint/config
 - [ ] Add in your eslintrc.json the import/extensions rule
+
 ###Your eslintrc.json should look like this
     {
         "env": {
