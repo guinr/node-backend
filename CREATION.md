@@ -6,7 +6,7 @@
 - [ ] Run command yarn create @eslint/config
 - [ ] Add in your eslintrc.json the import/extensions rule
 
-###Your eslintrc.json should look like this
+## Your eslintrc.json should look like this
     {
         "env": {
             "es2021": true,
