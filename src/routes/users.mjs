@@ -3,28 +3,45 @@ import express from 'express';
 
 const usersRoutes = express.Router();
 
-const users = {};
+const users = [];
+
+function findUserIndexByUUID(uuid) {
+  return users.findIndex((existingUser) => existingUser.uuid === uuid);
+}
 
 usersRoutes
   .get('/', (req, res) => {
     const { uuid } = req.query;
 
-    res.json(users[uuid] || users);
+    res.json(users.find((user) => user.uuid === uuid) || users);
   })
   .put('/', (req, res) => {
     const {
       uuid = randomUUID(),
-      user,
+      name,
+      age,
     } = req.body;
 
-    users[uuid] = user;
+    const user = { uuid, name, age };
+
+    const index = findUserIndexByUUID(uuid);
+    if (index > -1) {
+      users[index] = user;
+    } else {
+      users.push(user);
+    }
 
     res.json(user);
   })
   .delete('/:uuid', (req, res) => {
     const { uuid } = req.params;
-    delete users[uuid];
-    res.json('gone!');
+    const index = findUserIndexByUUID(uuid);
+    if (index > -1) {
+      users.splice(index, 1);
+      res.json('gone!');
+    } else {
+      res.json('user not found!');
+    }
   });
 
 export default usersRoutes;

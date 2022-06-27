@@ -1,6 +1,7 @@
 ## Server creation steps
 
 - [ ] Run command yarn init -y
+- [ ] Run command yarn add cors
 - [ ] Run command yarn add express
 - [ ] Run command yarn add eslint --dev
 - [ ] Run command yarn create @eslint/config
@@ -43,6 +44,7 @@
       },
       "dependencies": {
         "compression": "^1.7.4",
+        "cors": "^2.8.5",
         "express": "^4.18.1",
         "nodemon": "^2.0.16"
       },
@@ -56,12 +58,14 @@
 - [ ] Create a file called server.js
 ## This is how it should look like
     import compression from 'compression';
+    import cors from 'cors';
     import express from 'express';
     import usersRoutes from './routes/users.mjs';
 
     const port = 3000;
 
     const server = express();
+    server.use(cors());
     server.use(express.json());
     server.use(compression());
 
@@ -83,28 +87,45 @@
 
     const usersRoutes = express.Router();
 
-    const users = {};
+    const users = [];
+
+    function findUserIndexByUUID(uuid) {
+      return users.findIndex((existingUser) => existingUser.uuid === uuid);
+    }
 
     usersRoutes
       .get('/', (req, res) => {
         const { uuid } = req.query;
 
-        res.json(users[uuid] || users);
+        res.json(users.find((user) => user.uuid === uuid) || users);
       })
       .put('/', (req, res) => {
         const {
           uuid = randomUUID(),
-          user,
+          name,
+          age,
         } = req.body;
 
-        users[uuid] = user;
+        const user = { uuid, name, age };
+
+        const index = findUserIndexByUUID(uuid);
+        if (index > -1) {
+          users[index] = user;
+        } else {
+          users.push(user);
+        }
 
         res.json(user);
       })
       .delete('/:uuid', (req, res) => {
         const { uuid } = req.params;
-        delete users[uuid];
-        res.json('gone!');
+        const index = findUserIndexByUUID(uuid);
+        if (index > -1) {
+          users.splice(index, 1);
+          res.json('gone!');
+        } else {
+          res.json('user not found!');
+        }
       });
 
     export default usersRoutes;
